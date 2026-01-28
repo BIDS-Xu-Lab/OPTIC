@@ -38,7 +38,7 @@
         
         <!-- Button Area -->
         <div class="w-full max-w-6xl flex justify-end mt-2 mr-6">
-            <Button label="Start" @click="$emit('start')" size="small" class="font-bold"/>
+            <Button label="Start" @click="$emit('start')" size="small" class="font-bold !bg-[#146082] !border-[#146082]"/>
         </div>
     </div>
     

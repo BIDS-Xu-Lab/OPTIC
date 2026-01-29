@@ -1,6 +1,6 @@
 <template>
     <HomeView v-if="activeView === 'HomeView'" @start="onClickedStartAtHomeView"/>
-    <OpticView v-if="activeView === 'OpticView'"/>
+    <OpticView v-if="activeView === 'OpticView'" @backHome="activeView = 'HomeView'"/>
 </template>
 
 <script setup>

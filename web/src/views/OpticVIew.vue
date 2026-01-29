@@ -12,7 +12,12 @@
             <img src="../../public/images/logo_large.png" alt="Optic View" style="width: 10rem; margin-left: 5rem; margin-top: 1rem;"/>
         </div>
     </template>
-    <div style="margin: 1rem;">
+    <div style="margin: 1rem; height: calc(100vh - 12rem);" v-if="!data_loaded">
+        <div class="flex items-center justify-center h-full">
+            <ProgressSpinner />
+        </div>
+    </div>
+    <div style="margin: 1rem;" v-else>
         <Splitter style="height: calc(100vh - 12rem);">
         <SplitterPanel :minSize="40" :size="40" class="flex flex-col p-0">
             <div class="w-full flex items-center justify-evenly p-3 border-b surface-border">
@@ -211,6 +216,11 @@ const hr_check = ref(true)
 const ae_check = ref(true)
 const trial_data = ref(null)
 const selected_trial = ref(null)
+const data_loaded = ref(false)
+
+const sleep = () => {
+    return new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+}
 
 const toggleDetails = (item) => {
     selected_trial.value = selected_trial.value === item ? null : item
@@ -296,9 +306,12 @@ onMounted(async () => {
                 elegible_criteria:elegible_criteria
             };
         });
+        await sleep()
+        data_loaded.value = true
         console.log("Processed Data:", trial_data.value);
     } catch (error) {
         console.error("Error reading Excel file:", error);
+        data_loaded.value = false
     }
 })
 </script>

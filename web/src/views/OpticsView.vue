@@ -1,11 +1,4 @@
 <template>
-    <!-- <div class="title-container">
-        <img src="../../public/images/logo_large.png" alt="Optic View" style="width: 10rem;"/>
-    </div>
-    <div class="container">
-        <h1>Optic View</h1>
-    </div> -->
-
     <Panel class="container">
     <template #header>
         <div class="flex items-center gap-2 cursor-pointer" @click="emit('backHome')">

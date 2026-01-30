@@ -5,7 +5,7 @@
 
 <script setup>
 import HomeView from './views/HomeView.vue'
-import OpticView from './views/OpticVIew.vue'
+import OpticView from './views/OpticsView.vue'
 import { ref } from 'vue'
 
 const activeView = ref('HomeView')

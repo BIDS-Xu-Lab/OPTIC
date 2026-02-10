@@ -237,7 +237,7 @@ const isSignificant = (pVal) => {
 
 onMounted(async () => {
     try {
-        const response = await fetch('/data/data_OPTIC.xlsx');
+        const response = await fetch('/OPTIC/data/data_OPTIC.xlsx');
         const buffer = await response.arrayBuffer();
         const workbook = XLSX.read(buffer, { type: 'array' });
         const results_worksheet = workbook.Sheets["results"]

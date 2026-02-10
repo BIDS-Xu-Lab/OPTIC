@@ -1,92 +1,92 @@
 <template>
-    <Panel class="container">
-    <template #header>
-        <div class="flex items-center gap-2 cursor-pointer" @click="emit('backHome')">
-            <img src="../../public/images/logo_large.png" alt="Optic View" style="width: 10rem; margin-left: 5rem; margin-top: 1rem;"/>
+    <div class="layout-container">
+        <div class="flex items-center gap-2 cursor-pointer header-section" @click="emit('backHome')">
+            <img src="../../public/images/logo_large.png" alt="Optic View" style="width: 10rem; margin-top: 1rem; margin-left: 1rem;"/>
         </div>
-    </template>
-    <div style="margin: 1rem; height: calc(100vh - 12rem);" v-if="!data_loaded">
-        <div class="flex items-center justify-center h-full">
-            <ProgressSpinner />
+        
+        <div class="content-section" v-if="!data_loaded">
+            <div class="flex items-center justify-center h-full">
+                <ProgressSpinner />
+            </div>
         </div>
-    </div>
-    <div style="margin: 1rem;" v-else>
-        <Splitter style="height: calc(100vh - 12rem);">
-        <SplitterPanel :minSize="40" :size="40" class="flex flex-col p-0">
-            <div class="w-full flex items-center justify-evenly p-3 border-b surface-border">
-            <div class="flex items-center gap-2">
-                <ToggleSwitch v-model="num_patients_check" :disabled="!hr_check && !ae_check"/>
-                <label class="font-medium"># patients</label>
-            </div>
-            <div class="flex items-center gap-2">
-                <ToggleSwitch v-model="hr_check" :disabled="!num_patients_check && !ae_check"/>
-                <label class="font-medium">HR (95% CI)</label>
-            </div>
-            <div class="flex items-center gap-2">
-                <ToggleSwitch v-model="ae_check" :disabled="!num_patients_check && !hr_check"/>
-                <label class="font-medium">AE rate (p-values)</label>
-            </div>
-            </div>
-            <div class="flex-1 overflow-auto p-3" v-if="trial_data">
-                <div v-for="item in trial_data" :key="item.trial_name" 
-                 class="mb-4 p-2 rounded-lg transition-all duration-200"
-                 :class="selected_trial === item ? 'bg-blue-50 ring-2 ring-[#2c6693]' : 'ring-1 ring-gray-300'">
-                    <Panel class="!border-none !bg-transparent">
-                        <template #header>
-                            <div class="header-container cursor-pointer hover:bg-[#d2e4f0] transition-colors" @click="toggleDetails(item)">
-                                <span class="font-bold text-xl">{{ item.trial_name }}</span>
-                            </div>
-                        </template>
-                        <DataTable :value="item.macro_data" size="small" class="text-sm blue-striped-table" :rowHover="false">
-                            <Column field="method_name" header="">
-                                <template #body="slotProps">
-                                    <span v-if="slotProps.data.method_name === 'original'" class="font-bold text-900">Original TTE</span>
-                                    <span v-else class="font-bold text-900">{{slotProps.data.method_name}}</span>
-                                </template>
-                            </Column>
-                            <Column field="num_criteria" header="# criteria" v-if="num_patients_check"></Column>
-                            <Column field="num_patients" header="" v-if="num_patients_check">
+        
+        <div class="content-section" v-else>
+            <Splitter class="h-full bg-transparent border-1 border-gray-200 rounded-md">
+                <SplitterPanel :size="45" :minSize="36" class="flex flex-col p-0">
+                    <div class="w-full flex items-center justify-evenly p-3 border-b surface-border">
+                        <div class="flex items-center gap-2">
+                            <ToggleSwitch v-model="num_patients_check"/>
+                            <label class="font-medium"># patients</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <ToggleSwitch v-model="hr_check" />
+                            <label class="font-medium">HR (95% CI)</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <ToggleSwitch v-model="ae_check"/>
+                            <label class="font-medium">AE rate (p-values)</label>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto p-3" v-if="trial_data">
+                        <div v-for="item in trial_data" :key="item.trial_name" 
+                         class="mb-4 p-2 rounded-lg transition-all duration-200"
+                         :class="selected_trial === item ? 'bg-blue-50 ring-2 ring-[#2c6693]' : 'ring-1 ring-gray-300'">
+                            <Panel class="!border-none !bg-transparent">
                                 <template #header>
-                                    <div class="flex items-center gap-2">
-                                        <span># patients</span>
-                                        <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'Number of patients'"></i>
+                                    <div class="header-container cursor-pointer hover:bg-[#d2e4f0] transition-colors" @click="toggleDetails(item)">
+                                        <span class="font-bold text-xl">{{ item.trial_name }}</span>
                                     </div>
                                 </template>
-                            </Column>
-                            <Column field="hr_ci" header="" v-if="hr_check">
-                                <template #header>
-                                    <div class="flex items-center gap-2">
-                                        <span>HR (95% CI)</span>
-                                        <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'Hazard ratio (95% confidence interval)'"></i>
-                                    </div>
-                                </template>
-                                <template #body="slotProps">
-                                    <span>{{ slotProps.data.hr }} {{ slotProps.data.ci }}</span>
-                                </template>
-                            </Column>
-                            <Column field="ae_rate" header="" v-if="ae_check">
-                                <template #header>
-                                    <div class="flex items-center gap-2">
-                                        <span>AE rate</span>
-                                        <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'Rate of adverse events in the original TTE cohort and the added cohort'"></i>
-                                    </div>
-                                </template>
-                            </Column>
-                            <Column field="p_value" header="" v-if="ae_check">
-                                <template #header>
-                                    <div class="flex items-center gap-2">
-                                        <span>P-value</span>
-                                        <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'P-value for testing the null hypothesis that the AE rate in the added cohort is not greater than the original TTE cohort.'"></i>
-                                    </div>
-                                </template>
-                            </Column>
-                        </DataTable>
-                    </Panel>
-                </div>
-            </div>
-        </SplitterPanel>
-    <SplitterPanel :minSize="40" class="flex flex-col p-4"> 
-        <div v-if="selected_trial" class="w-full right-panel">
+                                <DataTable :value="item.macro_data" size="small" class="text-sm blue-striped-table" :rowHover="false">
+                                    <Column field="method_name" header="">
+                                        <template #body="slotProps">
+                                            <span v-if="slotProps.data.method_name === 'original'" class="font-bold text-900">Original TTE</span>
+                                            <span v-else class="font-bold text-900">{{slotProps.data.method_name}}</span>
+                                        </template>
+                                    </Column>
+                                    <Column field="num_criteria" header="# criteria"></Column>
+                                    <Column field="num_patients" header="" v-if="num_patients_check">
+                                        <template #header>
+                                            <div class="flex items-center gap-2">
+                                                <span># patients</span>
+                                                <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'Number of patients'"></i>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column field="hr_ci" header="" v-if="hr_check">
+                                        <template #header>
+                                            <div class="flex items-center gap-2">
+                                                <span>HR (95% CI)</span>
+                                                <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'Hazard ratio (95% confidence interval)'"></i>
+                                            </div>
+                                        </template>
+                                        <template #body="slotProps">
+                                            <span>{{ slotProps.data.hr }} {{ slotProps.data.ci }}</span>
+                                        </template>
+                                    </Column>
+                                    <Column field="ae_rate" header="" v-if="ae_check">
+                                        <template #header>
+                                            <div class="flex items-center gap-2">
+                                                <span>AE rate</span>
+                                                <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'Rate of adverse events in the original TTE cohort and the added cohort'"></i>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                    <Column field="p_value" header="" v-if="ae_check">
+                                        <template #header>
+                                            <div class="flex items-center gap-2">
+                                                <span>P-value</span>
+                                                <i class="pi pi-info-circle text-white cursor-pointer" v-tooltip.top="'P-value for testing the null hypothesis that the AE rate in the added cohort is not greater than the original TTE cohort.'"></i>
+                                            </div>
+                                        </template>
+                                    </Column>
+                                </DataTable>
+                            </Panel>
+                        </div>
+                    </div>
+                </SplitterPanel>
+                <SplitterPanel :size="55" class="flex flex-col"> 
+                    <div v-if="selected_trial" class="w-full right-panel">
             <div class="details-container mb-6">
                 <div class="flex flex-col gap-4 max-w-6xl min-w-fit">
                     <div class="flex flex-row">
@@ -98,6 +98,8 @@
                             <div class="bg-[#e9ecef] text-gray-800 px-4 py-2 font-medium flex items-center justify-center border-b-2 border-white">{{ selected_trial.detailed_data.cancer_short_name || '-' }}</div>
                             <div class="bg-[#e9ecef] text-gray-800 px-4 py-2 font-medium flex items-center justify-center border-r-2 border-white">{{ selected_trial.detailed_data.line_of_treatment || '-' }}</div>
                         </div>
+                    </div>
+                    <div class="flex flex-row">
 
                         <div class="flex flex-col min-w-[12rem]">
                             <div class="bg-[#9e2a2b] text-white font-bold px-3 py-2 flex items-center justify-center border-b-2 border-white">Endpoint</div>
@@ -196,8 +198,8 @@
         </div>
     </SplitterPanel>
     </Splitter>
+    </div>
 </div>
-</Panel>
 </template>
 
 <script setup>
@@ -310,10 +312,35 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.container {
-    margin: 1rem;
-    width: 100%;
-    max-width: calc(100% - 2rem);
+.layout-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header-section {
+    flex-shrink: 0;
+    /* padding is handled inline or via classes */
+}
+
+.content-section {
+    flex-grow: 1;
+    min-height: 0; /* Important for nested scroll */
+    padding: 1rem;
+    overflow: hidden;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 
